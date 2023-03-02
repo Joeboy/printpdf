@@ -4,6 +4,12 @@
 
 `printpdf` is a library designed for creating printable PDF documents.
 
+This is a fork whose only current purpose is to make underlined text possible,
+in a very hackish way, in conjunction with my also hackishly forked version of
+genpdf. The underlining honestly kind of gross, and relies on text being in a
+monospace font. You should probably turn back and use
+[fschutt's version](https://github.com/fschutt/printpdf) instead.
+
 [Crates.io](https://crates.io/crates/printpdf) | [Documentation](https://docs.rs/printpdf)
 
 ```toml,ignore

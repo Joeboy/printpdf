@@ -435,7 +435,7 @@ impl PdfLayerReference {
     ///
     /// [Windows-1252]: https://en.wikipedia.org/wiki/Windows-1252
     #[inline]
-    pub fn write_text<S>(&self, text: S, font: &IndirectFontRef)
+    pub fn write_text<S>(&self, text: S, font: &IndirectFontRef, x_position: usize, is_underlined: bool)
     -> () where S: Into<String>
     {
         // NOTE: The unwrap() calls in this function are safe, since
@@ -483,6 +483,22 @@ impl PdfLayerReference {
                 .operations.push(Operation::new("Tj",
                     vec![String(bytes, Hexadecimal)]
         ));
+        if is_underlined {
+            // Set text cursor to start of string:
+            doc.pages[self.page.0]
+                .layers[self.layer.0]
+                    .operations.push(Operation::new("Td",
+                    vec![Real(7.2 * x_position as f64), Real(0.0)]
+            ));
+            // print some underscores:
+            let v = vec![0x00, 0x3f].repeat(text.chars().count());
+            doc.pages[self.page.0].layers[self.layer.0].operations.push(
+                Operation::new(
+                    "Tj",
+                    vec![String(v, Hexadecimal)]  // underscore
+                )
+            );
+        }
     }
 
     /// Saves the current graphic state
@@ -511,7 +527,7 @@ impl PdfLayerReference {
             self.begin_text_section();
             self.set_font(font, font_size);
             self.set_text_cursor(x, y);
-            self.write_text(text, font);
+            self.write_text(text, font, 0, false); // Bodged position cos I don't need this to work right
             self.end_text_section();
     }
 
