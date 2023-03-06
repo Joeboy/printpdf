@@ -456,6 +456,7 @@ impl PdfLayerReference {
         // must be the same length as list_gid
         // let mut kerning_data = Vec::<freetype::Vector>::new();
 
+        let underscore_glyph_id: u16;
         let bytes: Vec<u8> = {
             if let Font::ExternalFont(face_direct_ref) = doc.fonts.get_font(font).unwrap().data {
 
@@ -468,10 +469,15 @@ impl PdfLayerReference {
                     }
                 }
 
+                underscore_glyph_id = font.glyph_id('_').unwrap();
+
                 list_gid.iter()
                     .flat_map(|x| vec!((x >> 8) as u8, (x & 255) as u8))
                     .collect::<Vec<u8>>()
             } else {
+                // Should never happen when called by my fork of genpdf with
+                // bundled font
+                underscore_glyph_id = 0;
                 // For built-in fonts, we selected the WinAnsiEncoding, see the Into<LoDictionary>
                 // implementation for BuiltinFont.
                 lopdf::Document::encode_text(Some("WinAnsiEncoding"), &text)
@@ -491,7 +497,7 @@ impl PdfLayerReference {
                     vec![Real(7.2 * x_position as f64), Real(0.0)]
             ));
             // print some underscores:
-            let v = vec![0x00, 0x3f].repeat(text.chars().count());
+            let v = underscore_glyph_id.to_be_bytes().to_vec().repeat(text.chars().count());
             doc.pages[self.page.0].layers[self.layer.0].operations.push(
                 Operation::new(
                     "Tj",
