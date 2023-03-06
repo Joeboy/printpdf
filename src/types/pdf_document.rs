@@ -646,12 +646,13 @@ impl PdfDocumentReference {
 
     #[cfg(any(debug_assertions, feature="less-optimization"))]
     #[inline]
-    fn optimize(_: &mut lopdf::Document) { }
+    fn optimize(_: &mut lopdf::Document) { println!("Skipping optimization"); }
 
     #[cfg(all(not(debug_assertions), not(feature="less-optimization")))]
     #[inline]
     fn optimize(doc: &mut lopdf::Document)
     {
+        println!("Optimizing");
         doc.prune_objects();
         doc.delete_zero_length_streams();
         doc.compress();
