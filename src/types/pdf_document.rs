@@ -532,7 +532,7 @@ impl PdfDocumentReference {
 
             let merged_layer_stream =
                 lopdf::Stream::new(lopdf::Dictionary::new(), layer_streams_merged_vec)
-                    .with_compression(false);
+                    .with_compression(true);
             let page_content_id = doc.inner_doc.add_object(merged_layer_stream);
 
             p.set("Contents", Reference(page_content_id));
